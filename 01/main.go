@@ -11,13 +11,28 @@ import (
 )
 
 func main() {
-    fmt.Print(determineNumberOfCaloriesCarriedByElfWithMostCalories("data/part1.input"))
+    fmt.Print(part1("data/part1.input"))
     fmt.Print("\n")
-    fmt.Print(determineNumberOfCaloriesCarriedByTopThreeElvesWithMostCalories("data/part1.input"))
+    fmt.Print(part2("data/part1.input"))
+    fmt.Print("\n")
 }
 
-func determineNumberOfCaloriesCarriedByElfWithMostCalories(filename string) int {
-	return determineElfWithMostCalories(readFile(filename))
+func part1(filename string) int {
+    return topElves(filename, 1)
+}
+
+func part2(filename string) int {
+    return topElves(filename, 3)
+}
+
+func topElves(filename string, count int) int {
+    input := readFile(filename)
+    totals := totals(input)
+    sort.Slice(totals, func(a, b int) bool {
+        return totals[a] < totals[b]
+    })
+    topThree := totals[len(totals)-count:]
+    return fp.Reduce(func (a, c int) int {return a+c}, 0)(topThree)
 }
 
 func readFile(filename string) string {
@@ -30,47 +45,18 @@ func readFile(filename string) string {
     return string(data)
 }
 
-func determineNumberOfCaloriesCarriedByTopThreeElvesWithMostCalories(filename string) int {
-    input := readFile(filename)
-    totals := totals(input)
-    sort.Slice(totals, func(a, b int) bool {
-        return totals[a] < totals[b]
-    })
-    topThree := totals[len(totals)-3:]
-    return fp.Reduce(func (a, c int) int {return a+c}, 0)(topThree)
-}
-
-func determineElfWithMostCalories(input string) int {
-    totals := totals(input)
-
-    bestTotal := 0
-    for _, total := range totals {
-        if bestTotal == 0 || total > bestTotal {
-            bestTotal = total
-        }
-
-    }
-	return bestTotal
-}
-
 func totals(input string) []int {
-	elfs := strings.Split(input, "\n\n")
-	totals := []int{}
-
-	for _, rawElf := range elfs {
-		calories := strings.Split(rawElf, "\n")
-		total := 0
-		for _, calory := range calories {
-			if calory == "" {
-				continue
-			}
-			number, err := strconv.Atoi(calory)
-			if err != nil {
-				panic(err)
-			}
-			total += number
-		}
-		totals = append(totals, total)
-	}
-	return totals
+    return fp.Map(func (s string) int {
+        return fp.Reduce(func (ac int, v string) int {
+            if "" == v {
+                return ac
+            }
+            int, err := strconv.Atoi(v)
+            if err != nil {
+                panic(err)
+            }
+            ac += int
+            return ac
+        }, 0)(strings.Split(s, "\n"))
+    })(strings.Split(input, "\n\n"))
 }
