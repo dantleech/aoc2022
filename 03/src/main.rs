@@ -2,14 +2,13 @@ use std::{collections::HashMap, fs};
 
 fn main() {
     let input: String = fs::read_to_string("data/input").expect("nope");
-    println!("{}", calculate(input));
+    println!("{}", calculate_part_1(input));
 }
 
 type Backpack = (Vec<char>,Vec<char>);
 type Backpacks = Vec<Backpack>;
 
-pub fn calculate(input: String) -> i32 {
-
+pub fn calculate_part_1(input: String) -> i32 {
     let backpacks = create_backpacks(input);
     let common_items = common_items(backpacks);
     let priority_map = priority_map();
@@ -69,8 +68,8 @@ mod test {
     use super::*;
 
     #[test]
-    fn calculates_score_based_on_guide() {
-        assert_eq!(157, calculate("
+    fn part_1() {
+        assert_eq!(157, calculate_part_1("
             vJrwpWtwJgWrhcsFMMfFFhFp
             jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
             PmmdzqPrVvPwwTWBwg
