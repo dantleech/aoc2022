@@ -10,7 +10,8 @@ import (
 )
 
 func main() {
-    fmt.Printf("Part 1: %d\n", numberOfullyOverlappingPairs("data/input"))
+    fmt.Printf("Part 1: %d\n", numberOFullyOverlappingPairs("data/input"))
+    fmt.Printf("Part 2: %d\n", numberOfOverlappingPairs("data/input"))
 }
 
 type SectorRange struct {
@@ -22,16 +23,33 @@ func (r1 SectorRange) contains(r2 SectorRange) bool {
     return r2.start >= r1.start && r2.end <= r1.end
 }
 
+func (r1 SectorRange) overlaps(r2 SectorRange) bool {
+    return r2.start >= r1.start && r2.start <= r1.end || r2.end >= r1.start && r2.end <= r1.end
+}
+
 type Pair struct {
     range1 SectorRange;
     range2 SectorRange;
 }
 
-func (p Pair) overlap() bool {
+func (p Pair) fullyOverlap() bool {
     return p.range1.contains(p.range2) || p.range2.contains(p.range1)
 }
+func (p Pair) overlap() bool {
+    return p.range1.overlaps(p.range2) || p.range2.overlaps(p.range1)
+}
 
-func numberOfullyOverlappingPairs(filename string) int {
+func numberOFullyOverlappingPairs(filename string) int {
+    return lo.Reduce(sectorRanges(filename), func (agg int, p Pair, _ int) int {
+        if p.fullyOverlap() {
+            agg += 1
+        }
+
+        return agg
+    }, 0)
+}
+
+func numberOfOverlappingPairs(filename string) int {
     return lo.Reduce(sectorRanges(filename), func (agg int, p Pair, _ int) int {
         if p.overlap() {
             agg += 1
