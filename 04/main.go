@@ -1,17 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 )
+
+func main() {
+    fmt.Printf("Part 1: %d\n", numberOfullyOverlappingPairs("data/input"))
+}
 
 type SectorRange struct {
     start int;
     end int;
+}
+
+func (r1 SectorRange) contains(r2 SectorRange) bool {
+    return r2.start >= r1.start && r2.end <= r1.end
 }
 
 type Pair struct {
@@ -19,9 +27,18 @@ type Pair struct {
     range2 SectorRange;
 }
 
-func numberOfOverlappingPairs(filename string) int {
-    spew.Dump(sectorRanges(filename))
-    return 0
+func (p Pair) overlap() bool {
+    return p.range1.contains(p.range2) || p.range2.contains(p.range1)
+}
+
+func numberOfullyOverlappingPairs(filename string) int {
+    return lo.Reduce(sectorRanges(filename), func (agg int, p Pair, _ int) int {
+        if p.overlap() {
+            agg += 1
+        }
+
+        return agg
+    }, 0)
 }
 
 func sectorRanges(filename  string) []Pair {
